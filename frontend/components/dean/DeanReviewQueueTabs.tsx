@@ -1,0 +1,53 @@
+"use client";
+
+export type DeanQueueView = "underway" | "assignment" | "completed";
+
+const VIEWS: { value: DeanQueueView; label: string }[] = [
+  { value: "assignment", label: "Needs assignment" },
+  { value: "underway", label: "Currently underway" },
+  { value: "completed", label: "Completed" },
+];
+
+type DeanReviewQueueTabsProps = {
+  activeView: DeanQueueView;
+  counts: Record<DeanQueueView, number>;
+  onChange: (view: DeanQueueView) => void;
+};
+
+export function DeanReviewQueueTabs({
+  activeView,
+  counts,
+  onChange,
+}: DeanReviewQueueTabsProps) {
+  return (
+    <div className="admin-review-tabs" role="tablist" aria-label="Dean incident queues">
+      {VIEWS.map((view) => {
+        const count = counts[view.value];
+        const isActive = activeView === view.value;
+        return (
+          <button
+            key={view.value}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            onClick={() => onChange(view.value)}
+            className={`admin-review-tab ${isActive ? "is-active" : ""}`}
+          >
+            <span>{view.label}</span>
+            <span
+              className={`admin-review-tab-count ${count > 0 ? "has-work" : ""}`}
+              aria-label={`${count} items`}
+            >
+              {count}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+export function pickDefaultDeanView(counts: Record<DeanQueueView, number>): DeanQueueView {
+  const order: DeanQueueView[] = ["assignment", "underway", "completed"];
+  return order.find((view) => counts[view] > 0) ?? "assignment";
+}
